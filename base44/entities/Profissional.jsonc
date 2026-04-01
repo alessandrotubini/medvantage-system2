@@ -1,0 +1,57 @@
+{
+  "name": "Profissional",
+  "type": "object",
+  "properties": {
+    "clinica_id": {
+      "type": "string"
+    },
+    "nome": {
+      "type": "string"
+    },
+    "especialidade": {
+      "type": "string"
+    },
+    "registro_profissional": {
+      "type": "string"
+    },
+    "telefone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "foto_url": {
+      "type": "string"
+    },
+    "cor_agenda": {
+      "type": "string",
+      "default": "#0EA5E9"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "horario_inicio": {
+      "type": "string"
+    },
+    "horario_fim": {
+      "type": "string"
+    },
+    "dias_atendimento": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "nome",
+    "clinica_id"
+  ]
+}

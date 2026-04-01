@@ -1,0 +1,83 @@
+{
+  "name": "Paciente",
+  "type": "object",
+  "properties": {
+    "clinica_id": {
+      "type": "string"
+    },
+    "nome": {
+      "type": "string"
+    },
+    "telefone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "data_nascimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "cpf": {
+      "type": "string"
+    },
+    "genero": {
+      "type": "string",
+      "enum": [
+        "masculino",
+        "feminino",
+        "outro",
+        "nao_informado"
+      ]
+    },
+    "endereco": {
+      "type": "string"
+    },
+    "profissional_responsavel_id": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "como_conheceu": {
+      "type": "string"
+    },
+    "status_relacionamento": {
+      "type": "string",
+      "enum": [
+        "novo",
+        "recorrente",
+        "inativo",
+        "retorno_pendente",
+        "alta"
+      ],
+      "default": "novo"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ultima_sessao": {
+      "type": "string",
+      "format": "date"
+    },
+    "proximo_retorno": {
+      "type": "string",
+      "format": "date"
+    },
+    "total_sessoes": {
+      "type": "number",
+      "default": 0
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "nome",
+    "clinica_id"
+  ]
+}

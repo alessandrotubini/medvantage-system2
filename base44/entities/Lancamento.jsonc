@@ -1,0 +1,71 @@
+{
+  "name": "Lancamento",
+  "type": "object",
+  "properties": {
+    "clinica_id": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "receita",
+        "despesa"
+      ]
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "valor": {
+      "type": "number"
+    },
+    "data": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_vencimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pago",
+        "pendente",
+        "vencido"
+      ],
+      "default": "pendente"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "aluguel",
+        "equipe",
+        "materiais",
+        "marketing",
+        "despesas_gerais",
+        "receita_atendimento",
+        "receita_pacote",
+        "outros"
+      ]
+    },
+    "paciente_id": {
+      "type": "string"
+    },
+    "atendimento_id": {
+      "type": "string"
+    },
+    "forma_pagamento": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "clinica_id",
+    "tipo",
+    "descricao",
+    "valor",
+    "data"
+  ]
+}

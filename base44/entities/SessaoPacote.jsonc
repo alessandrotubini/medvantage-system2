@@ -1,0 +1,66 @@
+{
+  "name": "SessaoPacote",
+  "type": "object",
+  "properties": {
+    "clinica_id": {
+      "type": "string"
+    },
+    "paciente_id": {
+      "type": "string"
+    },
+    "servico_id": {
+      "type": "string"
+    },
+    "nome_pacote": {
+      "type": "string"
+    },
+    "total_sessoes": {
+      "type": "number"
+    },
+    "sessoes_realizadas": {
+      "type": "number",
+      "default": 0
+    },
+    "sessoes_restantes": {
+      "type": "number"
+    },
+    "valor_total": {
+      "type": "number"
+    },
+    "valor_pago": {
+      "type": "number",
+      "default": 0
+    },
+    "data_inicio": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_validade": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "concluido",
+        "vencido",
+        "cancelado"
+      ],
+      "default": "ativo"
+    },
+    "retorno_recomendado": {
+      "type": "string",
+      "format": "date"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "clinica_id",
+    "paciente_id",
+    "nome_pacote",
+    "total_sessoes"
+  ]
+}

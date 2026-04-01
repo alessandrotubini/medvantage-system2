@@ -1,0 +1,82 @@
+{
+  "name": "MembroEquipe",
+  "type": "object",
+  "properties": {
+    "clinica_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "nome": {
+      "type": "string"
+    },
+    "papel": {
+      "type": "string",
+      "enum": [
+        "admin_clinica",
+        "recepcao",
+        "profissional",
+        "financeiro"
+      ],
+      "default": "recepcao"
+    },
+    "profissional_id": {
+      "type": "string"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true
+    },
+    "permissoes": {
+      "type": "object",
+      "properties": {
+        "dashboard": {
+          "type": "boolean",
+          "default": true
+        },
+        "agenda": {
+          "type": "boolean",
+          "default": true
+        },
+        "pacientes": {
+          "type": "boolean",
+          "default": true
+        },
+        "atendimentos": {
+          "type": "boolean",
+          "default": true
+        },
+        "sessoes": {
+          "type": "boolean",
+          "default": false
+        },
+        "financeiro": {
+          "type": "boolean",
+          "default": false
+        },
+        "relatorios": {
+          "type": "boolean",
+          "default": false
+        },
+        "equipe": {
+          "type": "boolean",
+          "default": false
+        },
+        "ai_growth": {
+          "type": "boolean",
+          "default": false
+        },
+        "configuracoes": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  },
+  "required": [
+    "clinica_id",
+    "user_email",
+    "papel"
+  ]
+}

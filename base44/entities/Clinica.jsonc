@@ -1,0 +1,105 @@
+{
+  "name": "Clinica",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome da cl\u00ednica"
+    },
+    "slug": {
+      "type": "string",
+      "description": "Identificador \u00fanico da cl\u00ednica"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "URL do logo"
+    },
+    "cor_principal": {
+      "type": "string",
+      "default": "#0EA5E9",
+      "description": "Cor principal da marca"
+    },
+    "telefone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "endereco": {
+      "type": "string"
+    },
+    "cidade": {
+      "type": "string"
+    },
+    "estado": {
+      "type": "string"
+    },
+    "site": {
+      "type": "string"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativa",
+        "bloqueada",
+        "trial",
+        "inativa"
+      ],
+      "default": "trial"
+    },
+    "plano": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "profissional",
+        "premium"
+      ],
+      "default": "starter"
+    },
+    "licenca_vencimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "onboarding_step": {
+      "type": "number",
+      "default": 0
+    },
+    "onboarding_completo": {
+      "type": "boolean",
+      "default": false
+    },
+    "horario_inicio": {
+      "type": "string",
+      "default": "08:00"
+    },
+    "horario_fim": {
+      "type": "string",
+      "default": "18:00"
+    },
+    "dias_funcionamento": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mensagem_confirmacao": {
+      "type": "string"
+    },
+    "mensagem_lembrete": {
+      "type": "string"
+    },
+    "notas_internas": {
+      "type": "string"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email do admin principal da cl\u00ednica"
+    }
+  },
+  "required": [
+    "nome"
+  ]
+}

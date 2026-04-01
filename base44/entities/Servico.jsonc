@@ -1,0 +1,36 @@
+{
+  "name": "Servico",
+  "type": "object",
+  "properties": {
+    "clinica_id": {
+      "type": "string"
+    },
+    "nome": {
+      "type": "string"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "duracao_minutos": {
+      "type": "number",
+      "default": 50
+    },
+    "valor": {
+      "type": "number"
+    },
+    "categoria": {
+      "type": "string"
+    },
+    "cor": {
+      "type": "string"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "nome",
+    "clinica_id"
+  ]
+}

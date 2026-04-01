@@ -1,0 +1,93 @@
+{
+  "name": "Atendimento",
+  "type": "object",
+  "properties": {
+    "clinica_id": {
+      "type": "string"
+    },
+    "paciente_id": {
+      "type": "string"
+    },
+    "profissional_id": {
+      "type": "string"
+    },
+    "servico_id": {
+      "type": "string"
+    },
+    "data": {
+      "type": "string",
+      "format": "date"
+    },
+    "hora_inicio": {
+      "type": "string"
+    },
+    "hora_fim": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "agendado",
+        "confirmado",
+        "em_atendimento",
+        "concluido",
+        "cancelado",
+        "falta"
+      ],
+      "default": "agendado"
+    },
+    "valor": {
+      "type": "number"
+    },
+    "valor_pago": {
+      "type": "number",
+      "default": 0
+    },
+    "forma_pagamento": {
+      "type": "string",
+      "enum": [
+        "dinheiro",
+        "pix",
+        "cartao_credito",
+        "cartao_debito",
+        "convenio",
+        "pendente"
+      ],
+      "default": "pendente"
+    },
+    "status_pagamento": {
+      "type": "string",
+      "enum": [
+        "pago",
+        "pendente",
+        "isento"
+      ],
+      "default": "pendente"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "evolucao": {
+      "type": "string"
+    },
+    "proximos_passos": {
+      "type": "string"
+    },
+    "sessao_pacote_id": {
+      "type": "string"
+    },
+    "retorno": {
+      "type": "boolean",
+      "default": false
+    },
+    "motivo_cancelamento": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "clinica_id",
+    "paciente_id",
+    "data",
+    "hora_inicio"
+  ]
+}
