@@ -9,25 +9,25 @@ import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: Calendar, label: 'Agenda', path: '/agenda' },
-  { icon: Users, label: 'Pacientes', path: '/pacientes' },
-  { icon: ClipboardList, label: 'Atendimentos', path: '/atendimentos' },
-  { icon: Package, label: 'Sessões & Pacotes', path: '/sessoes' },
-  { icon: DollarSign, label: 'Financeiro', path: '/financeiro' },
-  { icon: BarChart3, label: 'Relatórios', path: '/relatorios' },
-  { icon: Brain, label: 'AI Growth Engine', path: '/ai-growth', highlight: true },
-  { icon: UserCog, label: 'Equipe', path: '/equipe' },
-  { icon: UserCheck, label: 'Profissionais', path: '/profissionais' },
-  { icon: Scissors, label: 'Serviços', path: '/servicos' },
-  { icon: Settings, label: 'Configurações', path: '/configuracoes' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/app/dashboard' },
+  { icon: Calendar, label: 'Agenda', path: '/app/agenda' },
+  { icon: Users, label: 'Pacientes', path: '/app/pacientes' },
+  { icon: ClipboardList, label: 'Atendimentos', path: '/app/atendimentos' },
+  { icon: Package, label: 'Sessões & Pacotes', path: '/app/sessoes' },
+  { icon: DollarSign, label: 'Financeiro', path: '/app/financeiro' },
+  { icon: BarChart3, label: 'Relatórios', path: '/app/relatorios' },
+  { icon: Brain, label: 'AI Growth Engine', path: '/app/ai-growth', highlight: true },
+  { icon: UserCog, label: 'Equipe', path: '/app/equipe' },
+  { icon: UserCheck, label: 'Profissionais', path: '/app/profissionais' },
+  { icon: Scissors, label: 'Serviços', path: '/app/servicos' },
+  { icon: Settings, label: 'Configurações', path: '/app/configuracoes' },
 ];
 
 export default function Sidebar({ collapsed, onToggle }) {
   const location = useLocation();
   const { clinica, user, isSuperAdmin } = useClinica();
 
-  const handleLogout = () => base44.auth.logout('/');
+  const handleLogout = () => base44.auth.logout('/?logout=1');
 
   const primaryColor = clinica?.cor_principal || '#0EA5E9';
 

@@ -6,10 +6,12 @@ import PageHeader from '@/components/shared/PageHeader';
 import StatusBadge from '@/components/shared/StatusBadge';
 import { useClinica } from '@/lib/clinicaContext';
 import { useClinicaData, calcularKPIs } from '@/hooks/useClinicaData';
+import { useAppPath } from '@/hooks/useAppPath';
 import { DEMO_KPI, DEMO_ATENDIMENTOS_HOJE, DEMO_AI_INSIGHTS, DEMO_PACIENTES } from '@/lib/demoData';
 
 export default function Dashboard() {
   const { clinica } = useClinica();
+  const path = useAppPath();
   const hoje = new Date().toISOString().split('T')[0];
   const hojeLabel = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -70,7 +72,7 @@ export default function Dashboard() {
         <div className="lg:col-span-2 bg-card rounded-xl border border-border">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h2 className="font-semibold text-foreground">Agenda de Hoje</h2>
-            <Link to="/agenda" className="text-xs text-primary hover:underline font-medium">Ver completa →</Link>
+            <Link to={path('/agenda')} className="text-xs text-primary hover:underline font-medium">Ver completa →</Link>
           </div>
           <div className="divide-y divide-border">
             {agendaHoje.length === 0 && !loading && (
@@ -96,7 +98,7 @@ export default function Dashboard() {
               <Brain size={16} className="text-cyan-500" />
               <h2 className="font-semibold text-foreground">AI Growth Engine</h2>
             </div>
-            <Link to="/ai-growth" className="text-xs text-primary hover:underline font-medium">Ver tudo →</Link>
+            <Link to={path('/ai-growth')} className="text-xs text-primary hover:underline font-medium">Ver tudo →</Link>
           </div>
           <div className="p-4 space-y-3">
             {alertasAI.length === 0 && (
@@ -119,7 +121,7 @@ export default function Dashboard() {
       <div className="bg-card rounded-xl border border-border">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <h2 className="font-semibold text-foreground">Pacientes Recentes</h2>
-          <Link to="/pacientes" className="text-xs text-primary hover:underline font-medium">Ver todos →</Link>
+          <Link to={path('/pacientes')} className="text-xs text-primary hover:underline font-medium">Ver todos →</Link>
         </div>
         <div className="divide-y divide-border">
           {pacientesRecentes.length === 0 && !loading && (

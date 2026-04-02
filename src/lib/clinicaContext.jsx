@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
-const ClinicaContext = createContext(null);
+export const ClinicaContext = createContext(null);
 
 export function ClinicaProvider({ children }) {
   const [clinica, setClinica] = useState(null);

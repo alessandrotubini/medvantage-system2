@@ -147,7 +147,7 @@ export default function Onboarding() {
                 </div>
                 <h3 className="text-xl font-bold text-foreground">Sua clínica está pronta! 🎉</h3>
                 <p className="text-muted-foreground mt-2">O ClínicaPro AI está configurado e pronto para operar.</p>
-                <Button className="mt-6 px-8" onClick={() => window.location.href = '/'}>Ir para o Dashboard</Button>
+                <Button className="mt-6 px-8" onClick={() => window.location.href = '/app/dashboard'}>Ir para o Dashboard</Button>
               </div>
             )}
           </div>
