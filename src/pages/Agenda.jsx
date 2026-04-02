@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Filter } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import StatusBadge from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { DEMO_ATENDIMENTOS_HOJE, DEMO_PROFISSIONAIS } from '@/lib/demoData';
 import AgendaModal from '@/components/agenda/AgendaModal';
+import { useClinica } from '@/lib/clinicaContext';
+import { base44 } from '@/api/base44Client';
 
 const HOURS = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
@@ -18,17 +20,41 @@ const statusColors = {
 };
 
 export default function Agenda() {
+  const { clinica } = useClinica();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [view, setView] = useState('dia');
   const [showModal, setShowModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [atendimentos, setAtendimentos] = useState([]);
+  const [profissionais, setProfissionais] = useState([]);
 
   const dateStr = selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const dateISO = selectedDate.toISOString().split('T')[0];
 
   const prevDay = () => setSelectedDate(d => { const n = new Date(d); n.setDate(d.getDate()-1); return n; });
   const nextDay = () => setSelectedDate(d => { const n = new Date(d); n.setDate(d.getDate()+1); return n; });
 
-  const getAtendimentoForHour = (hour) => DEMO_ATENDIMENTOS_HOJE.filter(a => a.hora_inicio === hour);
+  useEffect(() => {
+    if (!clinica?.id) return;
+    Promise.all([
+      base44.entities.Atendimento.filter({ clinica_id: clinica.id, data: dateISO }),
+      base44.entities.Profissional.filter({ clinica_id: clinica.id }),
+    ]).then(([ats, profs]) => {
+      setAtendimentos(ats);
+      setProfissionais(profs);
+    });
+  }, [clinica?.id, dateISO]);
+
+  const reload = () => {
+    if (!clinica?.id) return;
+    base44.entities.Atendimento.filter({ clinica_id: clinica.id, data: dateISO }).then(setAtendimentos);
+  };
+
+  const isReal = !!clinica?.id;
+  const sourceAtendimentos = isReal ? atendimentos : DEMO_ATENDIMENTOS_HOJE;
+  const sourceProfissionais = isReal ? profissionais : DEMO_PROFISSIONAIS;
+
+  const getAtendimentoForHour = (hour) => sourceAtendimentos.filter(a => a.hora_inicio === hour);
 
   return (
     <div className="space-y-4">
@@ -63,7 +89,7 @@ export default function Agenda() {
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="grid grid-cols-4 border-b border-border">
           <div className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Horário</div>
-          {DEMO_PROFISSIONAIS.slice(0, 3).map(p => (
+          {sourceProfissionais.slice(0, 3).map(p => (
             <div key={p.id} className="px-4 py-3 border-l border-border">
               <p className="text-xs font-semibold text-foreground truncate">{p.nome.split(' ')[1]} {p.nome.split(' ')[2] || ''}</p>
               <p className="text-[10px] text-muted-foreground">{p.especialidade}</p>
@@ -76,16 +102,16 @@ export default function Agenda() {
             return (
               <div key={hour} className="grid grid-cols-4 min-h-[60px]">
                 <div className="px-4 py-3 text-xs font-mono text-muted-foreground flex items-start pt-3">{hour}</div>
-                {DEMO_PROFISSIONAIS.slice(0, 3).map((prof, idx) => {
-                  const at = ats.find(a => a.profissional.includes(prof.nome.split(' ')[1]));
+                {sourceProfissionais.slice(0, 3).map((prof, idx) => {
+                  const at = ats.find(a => isReal ? a.profissional_id === prof.id : (a.profissional || '').includes(prof.nome.split(' ')[1]));
                   return (
                     <div key={prof.id} className="border-l border-border px-2 py-1.5 cursor-pointer hover:bg-muted/20"
                       onClick={() => { setSelectedSlot({ hour, prof }); setShowModal(true); }}>
                       {at && (
                         <div className="rounded-md p-2 text-white text-xs"
                           style={{ backgroundColor: statusColors[at.status] || '#3B82F6' }}>
-                          <p className="font-semibold truncate">{at.paciente.split(' ')[0]}</p>
-                          <p className="opacity-80 truncate">{at.servico}</p>
+                          <p className="font-semibold truncate">{(at.paciente || at.paciente_id || '').split(' ')[0]}</p>
+                          <p className="opacity-80 truncate">{at.servico || at.servico_id || ''}</p>
                         </div>
                       )}
                     </div>
@@ -97,7 +123,7 @@ export default function Agenda() {
         </div>
       </div>
 
-      {showModal && <AgendaModal onClose={() => { setShowModal(false); setSelectedSlot(null); }} slot={selectedSlot} onSaved={() => {}} />}
+      {showModal && <AgendaModal onClose={() => { setShowModal(false); setSelectedSlot(null); }} slot={selectedSlot} onSaved={reload} />}
     </div>
   );
 }

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Shield, Mail, Edit, Power } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PageHeader from '@/components/shared/PageHeader';
 import EquipeModal from '@/components/equipe/EquipeModal';
+import { useClinica } from '@/lib/clinicaContext';
+import { base44 } from '@/api/base44Client';
 
 const papelLabels = {
   admin_clinica: { label: 'Admin da Clínica', color: 'bg-purple-50 text-purple-700 border-purple-200' },
@@ -23,8 +25,23 @@ const MODULOS = ['dashboard', 'agenda', 'pacientes', 'atendimentos', 'sessoes', 
 const MOD_LABELS = { dashboard: 'Dashboard', agenda: 'Agenda', pacientes: 'Pacientes', atendimentos: 'Atendimentos', sessoes: 'Sessões', financeiro: 'Financeiro', relatorios: 'Relatórios', equipe: 'Equipe', ai_growth: 'AI Growth', configuracoes: 'Config.' };
 
 export default function Equipe() {
+  const { clinica } = useClinica();
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [equipe, setEquipe] = useState([]);
+
+  useEffect(() => {
+    if (clinica?.id) {
+      base44.entities.MembroEquipe.filter({ clinica_id: clinica.id }).then(setEquipe);
+    }
+  }, [clinica?.id]);
+
+  const reload = () => {
+    if (clinica?.id) base44.entities.MembroEquipe.filter({ clinica_id: clinica.id }).then(setEquipe);
+  };
+
+  const isReal = !!clinica?.id;
+  const source = isReal ? equipe : DEMO_EQUIPE;
 
   return (
     <div className="space-y-4">
@@ -38,18 +55,21 @@ export default function Equipe() {
         <div className="px-5 py-4 border-b border-border flex items-center gap-2">
           <Shield size={16} className="text-primary" />
           <h2 className="font-semibold text-foreground">Membros da Equipe</h2>
-          <span className="ml-auto text-xs text-muted-foreground">{DEMO_EQUIPE.length} membros</span>
+          <span className="ml-auto text-xs text-muted-foreground">{source.length} membros</span>
         </div>
         <div className="divide-y divide-border">
-          {DEMO_EQUIPE.map(membro => {
-            const papel = papelLabels[membro.papel];
+          {source.length === 0 && (
+            <p className="px-5 py-8 text-sm text-muted-foreground text-center">Nenhum membro cadastrado. Convide sua equipe!</p>
+          )}
+          {source.map(membro => {
+            const papel = papelLabels[membro.papel] || { label: membro.papel, color: 'bg-gray-50 text-gray-600 border-gray-200' };
             return (
               <div key={membro.id} className="flex items-center gap-4 px-5 py-4 hover:bg-muted/20 transition-colors">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${membro.ativo ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                  {membro.nome[0]}
+                  {(membro.nome || membro.user_email || '?')[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${membro.ativo ? 'text-foreground' : 'text-muted-foreground'}`}>{membro.nome}</p>
+                  <p className={`text-sm font-medium ${membro.ativo ? 'text-foreground' : 'text-muted-foreground'}`}>{membro.nome || '—'}</p>
                   <p className="text-xs text-muted-foreground flex items-center gap-1"><Mail size={10} />{membro.user_email}</p>
                 </div>
                 <span className={`text-xs font-medium px-2.5 py-1 rounded-md border ${papel.color}`}>{papel.label}</span>
@@ -110,7 +130,13 @@ export default function Equipe() {
         </div>
       </div>
 
-      {(showModal || selected) && <EquipeModal onClose={() => { setShowModal(false); setSelected(null); }} membro={selected} />}
+      {(showModal || selected) && (
+        <EquipeModal
+          onClose={() => { setShowModal(false); setSelected(null); }}
+          membro={selected}
+          onSaved={() => { reload(); setShowModal(false); setSelected(null); }}
+        />
+      )}
     </div>
   );
 }

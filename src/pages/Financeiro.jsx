@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, TrendingUp, TrendingDown, DollarSign, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PageHeader from '@/components/shared/PageHeader';
 import StatusBadge from '@/components/shared/StatusBadge';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useClinica } from '@/lib/clinicaContext';
+import { base44 } from '@/api/base44Client';
 
 const DEMO_LANCAMENTOS = [
   { id: 'lc-001', descricao: 'Fisioterapia - Maria Fernanda', tipo: 'receita', valor: 150, data: '2026-04-01', status: 'pago', categoria: 'receita_atendimento' },
@@ -16,7 +18,7 @@ const DEMO_LANCAMENTOS = [
   { id: 'lc-008', descricao: 'Pacote Fisioterapia - Roberto', tipo: 'receita', valor: 450, data: '2026-04-02', status: 'pendente', categoria: 'receita_pacote' },
 ];
 
-const CHART_DATA = [
+const DEMO_CHART = [
   { mes: 'Nov', receita: 14200, despesa: 7800 },
   { mes: 'Dez', receita: 16500, despesa: 8200 },
   { mes: 'Jan', receita: 15800, despesa: 7600 },
@@ -25,10 +27,34 @@ const CHART_DATA = [
   { mes: 'Abr', receita: 4300, despesa: 4130 },
 ];
 
-export default function Financeiro() {
-  const [tabAtiva, setTabAtiva] = useState('todos');
+function buildChartData(lancamentos) {
+  const map = {};
+  lancamentos.forEach(l => {
+    if (!l.data) return;
+    const mes = new Date(l.data).toLocaleDateString('pt-BR', { month: 'short' });
+    if (!map[mes]) map[mes] = { mes, receita: 0, despesa: 0 };
+    if (l.tipo === 'receita') map[mes].receita += l.valor || 0;
+    else map[mes].despesa += l.valor || 0;
+  });
+  return Object.values(map).slice(-6);
+}
 
-  const filtrados = DEMO_LANCAMENTOS.filter(l => {
+export default function Financeiro() {
+  const { clinica } = useClinica();
+  const [tabAtiva, setTabAtiva] = useState('todos');
+  const [lancamentos, setLancamentos] = useState([]);
+
+  useEffect(() => {
+    if (clinica?.id) {
+      base44.entities.Lancamento.filter({ clinica_id: clinica.id }, '-data', 100).then(setLancamentos);
+    }
+  }, [clinica?.id]);
+
+  const isReal = !!clinica?.id;
+  const source = isReal ? lancamentos : DEMO_LANCAMENTOS;
+  const chartData = isReal ? buildChartData(lancamentos) : DEMO_CHART;
+
+  const filtrados = source.filter(l => {
     if (tabAtiva === 'todos') return true;
     if (tabAtiva === 'receitas') return l.tipo === 'receita';
     if (tabAtiva === 'despesas') return l.tipo === 'despesa';
@@ -36,9 +62,9 @@ export default function Financeiro() {
     return true;
   });
 
-  const totalReceita = DEMO_LANCAMENTOS.filter(l => l.tipo === 'receita' && l.status === 'pago').reduce((a, b) => a + b.valor, 0);
-  const totalPendente = DEMO_LANCAMENTOS.filter(l => l.status === 'pendente').reduce((a, b) => a + b.valor, 0);
-  const totalDespesa = DEMO_LANCAMENTOS.filter(l => l.tipo === 'despesa').reduce((a, b) => a + b.valor, 0);
+  const totalReceita = source.filter(l => l.tipo === 'receita' && l.status === 'pago').reduce((a, b) => a + (b.valor || 0), 0);
+  const totalPendente = source.filter(l => l.status === 'pendente').reduce((a, b) => a + (b.valor || 0), 0);
+  const totalDespesa = source.filter(l => l.tipo === 'despesa').reduce((a, b) => a + (b.valor || 0), 0);
   const lucroEstimado = totalReceita - totalDespesa;
 
   return (
@@ -84,16 +110,20 @@ export default function Financeiro() {
       {/* Chart */}
       <div className="bg-card rounded-xl border border-border p-5">
         <h2 className="font-semibold text-foreground mb-4">Receitas vs Despesas (6 meses)</h2>
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={CHART_DATA} barSize={24}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-            <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `R$${(v/1000).toFixed(0)}k`} />
-            <Tooltip formatter={v => `R$ ${v.toLocaleString('pt-BR')}`} />
-            <Bar dataKey="receita" fill="hsl(var(--chart-2))" radius={[4,4,0,0]} name="Receita" />
-            <Bar dataKey="despesa" fill="hsl(var(--chart-5))" radius={[4,4,0,0]} name="Despesa" />
-          </BarChart>
-        </ResponsiveContainer>
+        {chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={chartData} barSize={24}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `R$${(v/1000).toFixed(0)}k`} />
+              <Tooltip formatter={v => `R$ ${v.toLocaleString('pt-BR')}`} />
+              <Bar dataKey="receita" fill="hsl(var(--chart-2))" radius={[4,4,0,0]} name="Receita" />
+              <Bar dataKey="despesa" fill="hsl(var(--chart-5))" radius={[4,4,0,0]} name="Despesa" />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-8">Nenhum lançamento registrado ainda.</p>
+        )}
       </div>
 
       {/* Lançamentos */}
@@ -110,6 +140,9 @@ export default function Financeiro() {
           </div>
         </div>
         <div className="divide-y divide-border">
+          {filtrados.length === 0 && (
+            <p className="px-5 py-8 text-sm text-muted-foreground text-center">Nenhum lançamento encontrado.</p>
+          )}
           {filtrados.map(l => (
             <div key={l.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/20 transition-colors">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${l.tipo === 'receita' ? 'bg-green-50' : 'bg-red-50'}`}>
@@ -117,11 +150,11 @@ export default function Financeiro() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">{l.descricao}</p>
-                <p className="text-xs text-muted-foreground">{l.data} · {l.categoria?.replace('_', ' ')}</p>
+                <p className="text-xs text-muted-foreground">{l.data} · {l.categoria?.replace(/_/g, ' ')}</p>
               </div>
               <StatusBadge status={l.status} />
               <p className={`text-sm font-bold min-w-24 text-right ${l.tipo === 'receita' ? 'text-green-600' : 'text-red-600'}`}>
-                {l.tipo === 'receita' ? '+' : '-'} R$ {l.valor.toLocaleString('pt-BR')}
+                {l.tipo === 'receita' ? '+' : '-'} R$ {(l.valor || 0).toLocaleString('pt-BR')}
               </p>
             </div>
           ))}
