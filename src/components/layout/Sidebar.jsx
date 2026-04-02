@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, Users, ClipboardList, Package, DollarSign,
-  BarChart3, Settings, Brain, Building2, Menu, X, LogOut, ChevronRight, Stethoscope, UserCog
+  BarChart3, Settings, Brain, Building2, Menu, LogOut, ChevronRight, Stethoscope, UserCog, UserCheck, Scissors
 } from 'lucide-react';
 import { useClinica } from '@/lib/clinicaContext';
 import { base44 } from '@/api/base44Client';
@@ -18,6 +18,8 @@ const navItems = [
   { icon: BarChart3, label: 'Relatórios', path: '/relatorios' },
   { icon: Brain, label: 'AI Growth Engine', path: '/ai-growth', highlight: true },
   { icon: UserCog, label: 'Equipe', path: '/equipe' },
+  { icon: UserCheck, label: 'Profissionais', path: '/profissionais' },
+  { icon: Scissors, label: 'Serviços', path: '/servicos' },
   { icon: Settings, label: 'Configurações', path: '/configuracoes' },
 ];
 

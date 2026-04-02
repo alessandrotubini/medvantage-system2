@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Filter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
-import StatusBadge from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { DEMO_ATENDIMENTOS_HOJE, DEMO_PROFISSIONAIS } from '@/lib/demoData';
 import AgendaModal from '@/components/agenda/AgendaModal';
 import { useClinica } from '@/lib/clinicaContext';
 import { base44 } from '@/api/base44Client';
+import { resolveName } from '@/hooks/useClinicaData';
 
 const HOURS = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
@@ -27,6 +27,8 @@ export default function Agenda() {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [atendimentos, setAtendimentos] = useState([]);
   const [profissionais, setProfissionais] = useState([]);
+  const [pacientesMap, setPacientesMap] = useState({});
+  const [servicosMap, setServicosMap] = useState({});
 
   const dateStr = selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const dateISO = selectedDate.toISOString().split('T')[0];
@@ -39,9 +41,13 @@ export default function Agenda() {
     Promise.all([
       base44.entities.Atendimento.filter({ clinica_id: clinica.id, data: dateISO }),
       base44.entities.Profissional.filter({ clinica_id: clinica.id }),
-    ]).then(([ats, profs]) => {
+      base44.entities.Paciente.filter({ clinica_id: clinica.id }),
+      base44.entities.Servico.filter({ clinica_id: clinica.id }),
+    ]).then(([ats, profs, pacs, servs]) => {
       setAtendimentos(ats);
       setProfissionais(profs);
+      setPacientesMap(Object.fromEntries(pacs.map(p => [p.id, p.nome])));
+      setServicosMap(Object.fromEntries(servs.map(s => [s.id, s.nome])));
     });
   }, [clinica?.id, dateISO]);
 
@@ -110,8 +116,12 @@ export default function Agenda() {
                       {at && (
                         <div className="rounded-md p-2 text-white text-xs"
                           style={{ backgroundColor: statusColors[at.status] || '#3B82F6' }}>
-                          <p className="font-semibold truncate">{(at.paciente || at.paciente_id || '').split(' ')[0]}</p>
-                          <p className="opacity-80 truncate">{at.servico || at.servico_id || ''}</p>
+                          <p className="font-semibold truncate">
+                            {isReal ? resolveName(pacientesMap, at.paciente_id, '...').split(' ')[0] : (at.paciente || '').split(' ')[0]}
+                          </p>
+                          <p className="opacity-80 truncate">
+                            {isReal ? resolveName(servicosMap, at.servico_id, '—') : at.servico}
+                          </p>
                         </div>
                       )}
                     </div>

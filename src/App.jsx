@@ -21,6 +21,8 @@ import Equipe from './pages/Equipe';
 import Configuracoes from './pages/Configuracoes';
 import MasterAdmin from './pages/MasterAdmin';
 import Onboarding from './pages/Onboarding';
+import Profissionais from './pages/Profissionais';
+import Servicos from './pages/Servicos';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -62,6 +64,8 @@ const AuthenticatedApp = () => {
         <Route path="/relatorios" element={<Relatorios />} />
         <Route path="/ai-growth" element={<AIGrowthEngine />} />
         <Route path="/equipe" element={<Equipe />} />
+        <Route path="/profissionais" element={<Profissionais />} />
+        <Route path="/servicos" element={<Servicos />} />
         <Route path="/configuracoes" element={<Configuracoes />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />

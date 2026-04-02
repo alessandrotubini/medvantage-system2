@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 /**
  * Hook centralizado para carregar dados reais da clínica logada.
  * Retorna dados reais quando clinica_id estiver disponível.
- * As páginas devem usar demo data como fallback quando clinica_id for nulo.
+ * Inclui mapas de lookup para resolução de nomes relacionados.
  */
 export function useClinicaData(clinicaId) {
   const [data, setData] = useState({
@@ -16,6 +16,10 @@ export function useClinicaData(clinicaId) {
     profissionais: [],
     servicos: [],
     equipe: [],
+    // lookup maps
+    pacientesMap: {},
+    profissionaisMap: {},
+    servicosMap: {},
     loading: true,
   });
 
@@ -40,7 +44,17 @@ export function useClinicaData(clinicaId) {
 
     const atendimentosHoje = atendimentos.filter(a => a.data === hoje);
 
-    setData({ pacientes, atendimentos, atendimentosHoje, sessoesPacotes, lancamentos, profissionais, servicos, equipe, loading: false });
+    // Build lookup maps id -> nome
+    const pacientesMap = Object.fromEntries(pacientes.map(p => [p.id, p.nome]));
+    const profissionaisMap = Object.fromEntries(profissionais.map(p => [p.id, p.nome]));
+    const servicosMap = Object.fromEntries(servicos.map(s => [s.id, s.nome]));
+
+    setData({
+      pacientes, atendimentos, atendimentosHoje, sessoesPacotes,
+      lancamentos, profissionais, servicos, equipe,
+      pacientesMap, profissionaisMap, servicosMap,
+      loading: false,
+    });
   };
 
   useEffect(() => {
@@ -50,15 +64,20 @@ export function useClinicaData(clinicaId) {
   return { ...data, reload: load };
 }
 
+/** Resolve um ID para um nome usando um mapa de lookup. Retorna fallback se não encontrado. */
+export function resolveName(map, id, fallback = '—') {
+  if (!id) return fallback;
+  return map[id] || id;
+}
+
 /** Calcula KPIs reais a partir dos dados carregados */
 export function calcularKPIs(data, hoje) {
   const { pacientes, atendimentos, atendimentosHoje, sessoesPacotes, lancamentos } = data;
-
-  const mesAtual = hoje.substring(0, 7); // YYYY-MM
+  const mesAtual = hoje.substring(0, 7);
 
   const pacientesInativos = pacientes.filter(p => p.status_relacionamento === 'inativo').length;
   const retornosPendentes = pacientes.filter(p => p.status_relacionamento === 'retorno_pendente').length;
-  const sessoeAtivas = sessoesPacotes.filter(s => s.status === 'ativo').length;
+  const sessoesAtivas = sessoesPacotes.filter(s => s.status === 'ativo').length;
 
   const atendimentosMes = atendimentos.filter(a => a.data?.startsWith(mesAtual));
   const faltasMes = atendimentosMes.filter(a => a.status === 'falta' || a.status === 'cancelado').length;
@@ -71,7 +90,7 @@ export function calcularKPIs(data, hoje) {
     atendimentos_hoje: atendimentosHoje.length,
     pacientes_inativos: pacientesInativos,
     retornos_pendentes: retornosPendentes,
-    sessoes_em_andamento: sessoeAtivas,
+    sessoes_em_andamento: sessoesAtivas,
     faltas_mes: faltasMes,
     contas_receber: contasReceber,
     faturamento_mes: faturamentoMes,
