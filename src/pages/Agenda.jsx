@@ -97,7 +97,7 @@ export default function Agenda() {
         </div>
       </div>
 
-      {showModal && <AgendaModal onClose={() => { setShowModal(false); setSelectedSlot(null); }} slot={selectedSlot} />}
+      {showModal && <AgendaModal onClose={() => { setShowModal(false); setSelectedSlot(null); }} slot={selectedSlot} onSaved={() => {}} />}
     </div>
   );
 }

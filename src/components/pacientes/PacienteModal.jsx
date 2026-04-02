@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { base44 } from '@/api/base44Client';
+import { useClinica } from '@/lib/clinicaContext';
 
-export default function PacienteModal({ onClose, paciente }) {
+export default function PacienteModal({ onClose, paciente, onSaved }) {
+  const { clinica } = useClinica();
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     nome: paciente?.nome || '',
     telefone: paciente?.telefone || '',
@@ -15,6 +19,20 @@ export default function PacienteModal({ onClose, paciente }) {
     observacoes: paciente?.observacoes || '',
     como_conheceu: paciente?.como_conheceu || '',
   });
+
+  const handleSave = async () => {
+    if (!form.nome.trim()) return;
+    setLoading(true);
+    const data = { ...form, clinica_id: clinica?.id };
+    if (paciente?.id) {
+      await base44.entities.Paciente.update(paciente.id, data);
+    } else {
+      await base44.entities.Paciente.create(data);
+    }
+    setLoading(false);
+    onSaved?.();
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -68,8 +86,11 @@ export default function PacienteModal({ onClose, paciente }) {
           </div>
         </div>
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={onClose}>Salvar Paciente</Button>
+          <Button variant="outline" onClick={onClose} disabled={loading}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={loading || !form.nome.trim()}>
+            {loading && <Loader2 size={14} className="animate-spin mr-1" />}
+            Salvar Paciente
+          </Button>
         </div>
       </div>
     </div>

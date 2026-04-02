@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, Phone, Calendar, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,18 +6,34 @@ import PageHeader from '@/components/shared/PageHeader';
 import StatusBadge from '@/components/shared/StatusBadge';
 import PacienteModal from '@/components/pacientes/PacienteModal';
 import PacienteDrawer from '@/components/pacientes/PacienteDrawer';
+import { useClinica } from '@/lib/clinicaContext';
+import { base44 } from '@/api/base44Client';
 import { DEMO_PACIENTES } from '@/lib/demoData';
 
 const allStatus = ['todos', 'novo', 'recorrente', 'inativo', 'retorno_pendente'];
 
 export default function Pacientes() {
+  const { clinica } = useClinica();
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('todos');
   const [showModal, setShowModal] = useState(false);
   const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const [pacientes, setPacientes] = useState([]);
 
-  const filtered = DEMO_PACIENTES.filter(p => {
-    const matchSearch = p.nome.toLowerCase().includes(search.toLowerCase()) || p.telefone.includes(search);
+  useEffect(() => {
+    if (clinica?.id) {
+      base44.entities.Paciente.filter({ clinica_id: clinica.id }).then(setPacientes);
+    }
+  }, [clinica?.id]);
+
+  const reload = () => {
+    if (clinica?.id) base44.entities.Paciente.filter({ clinica_id: clinica.id }).then(setPacientes);
+  };
+
+  const source = clinica?.id ? pacientes : DEMO_PACIENTES;
+
+  const filtered = source.filter(p => {
+    const matchSearch = p.nome.toLowerCase().includes(search.toLowerCase()) || (p.telefone || '').includes(search);
     const matchStatus = filterStatus === 'todos' || p.status_relacionamento === filterStatus;
     return matchSearch && matchStatus;
   });
@@ -28,7 +44,7 @@ export default function Pacientes() {
     <div className="space-y-4">
       <PageHeader
         title="Pacientes"
-        subtitle={`${DEMO_PACIENTES.length} pacientes cadastrados`}
+        subtitle={`${filtered.length} pacientes cadastrados`}
         action={<Button onClick={() => setShowModal(true)} className="gap-2"><Plus size={16} />Novo Paciente</Button>}
       />
 
@@ -84,7 +100,7 @@ export default function Pacientes() {
         </div>
       </div>
 
-      {showModal && <PacienteModal onClose={() => setShowModal(false)} />}
+      {showModal && <PacienteModal onClose={() => setShowModal(false)} onSaved={reload} />}
       {selectedPaciente && <PacienteDrawer paciente={selectedPaciente} onClose={() => setSelectedPaciente(null)} />}
     </div>
   );

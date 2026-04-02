@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DEMO_PACIENTES, DEMO_SERVICOS } from '@/lib/demoData';
+import { base44 } from '@/api/base44Client';
+import { useClinica } from '@/lib/clinicaContext';
 
-export default function SessaoModal({ onClose, sessao }) {
+export default function SessaoModal({ onClose, sessao, onSaved }) {
+  const { clinica } = useClinica();
+  const [loading, setLoading] = useState(false);
+  const [pacientes, setPacientes] = useState([]);
+  const [servicos, setServicos] = useState([]);
+
   const [form, setForm] = useState({
     nome_pacote: sessao?.nome_pacote || '',
     paciente_id: sessao?.paciente_id || '',
@@ -17,6 +23,32 @@ export default function SessaoModal({ onClose, sessao }) {
     data_validade: sessao?.data_validade || '',
     observacoes: sessao?.observacoes || '',
   });
+
+  useEffect(() => {
+    if (!clinica?.id) return;
+    Promise.all([
+      base44.entities.Paciente.filter({ clinica_id: clinica.id }),
+      base44.entities.Servico.filter({ clinica_id: clinica.id }),
+    ]).then(([p, s]) => {
+      setPacientes(p);
+      setServicos(s);
+    });
+  }, [clinica?.id]);
+
+  const handleSave = async () => {
+    if (!form.nome_pacote.trim() || !form.paciente_id) return;
+    setLoading(true);
+    const sessoes_restantes = form.total_sessoes - (sessao?.sessoes_realizadas || 0);
+    const data = { ...form, clinica_id: clinica?.id, sessoes_restantes };
+    if (sessao?.id) {
+      await base44.entities.SessaoPacote.update(sessao.id, data);
+    } else {
+      await base44.entities.SessaoPacote.create({ ...data, sessoes_realizadas: 0 });
+    }
+    setLoading(false);
+    onSaved?.();
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -34,14 +66,14 @@ export default function SessaoModal({ onClose, sessao }) {
             <Label>Paciente</Label>
             <Select value={form.paciente_id} onValueChange={v => setForm({...form, paciente_id: v})}>
               <SelectTrigger className="mt-1"><SelectValue placeholder="Selecionar paciente" /></SelectTrigger>
-              <SelectContent>{DEMO_PACIENTES.map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}</SelectContent>
+              <SelectContent>{pacientes.map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div>
             <Label>Serviço / Procedimento</Label>
             <Select value={form.servico_id} onValueChange={v => setForm({...form, servico_id: v})}>
               <SelectTrigger className="mt-1"><SelectValue placeholder="Selecionar serviço" /></SelectTrigger>
-              <SelectContent>{DEMO_SERVICOS.map(s => <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>)}</SelectContent>
+              <SelectContent>{servicos.map(s => <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -72,8 +104,11 @@ export default function SessaoModal({ onClose, sessao }) {
           </div>
         </div>
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={onClose}>Salvar Pacote</Button>
+          <Button variant="outline" onClick={onClose} disabled={loading}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={loading || !form.nome_pacote.trim() || !form.paciente_id}>
+            {loading && <Loader2 size={14} className="animate-spin mr-1" />}
+            Salvar Pacote
+          </Button>
         </div>
       </div>
     </div>

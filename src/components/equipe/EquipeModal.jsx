@@ -1,16 +1,37 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { base44 } from '@/api/base44Client';
+import { useClinica } from '@/lib/clinicaContext';
 
-export default function EquipeModal({ onClose, membro }) {
+export default function EquipeModal({ onClose, membro, onSaved }) {
+  const { clinica } = useClinica();
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     nome: membro?.nome || '',
     user_email: membro?.user_email || '',
     papel: membro?.papel || 'recepcao',
   });
+
+  const handleSave = async () => {
+    if (!form.user_email.trim()) return;
+    setLoading(true);
+    if (membro?.id) {
+      await base44.entities.MembroEquipe.update(membro.id, { ...form, clinica_id: clinica?.id });
+    } else {
+      // Create member record
+      await base44.entities.MembroEquipe.create({ ...form, clinica_id: clinica?.id, ativo: true });
+      // Invite user to the platform
+      const role = form.papel === 'admin_clinica' ? 'admin' : 'user';
+      await base44.users.inviteUser(form.user_email, role);
+    }
+    setLoading(false);
+    onSaved?.();
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -26,7 +47,7 @@ export default function EquipeModal({ onClose, membro }) {
           </div>
           <div>
             <Label>Email</Label>
-            <Input type="email" value={form.user_email} onChange={e => setForm({...form, user_email: e.target.value})} className="mt-1" placeholder="email@clinica.com" />
+            <Input type="email" value={form.user_email} onChange={e => setForm({...form, user_email: e.target.value})} className="mt-1" placeholder="email@clinica.com" disabled={!!membro} />
           </div>
           <div>
             <Label>Papel / Perfil de Acesso</Label>
@@ -41,12 +62,15 @@ export default function EquipeModal({ onClose, membro }) {
             </Select>
           </div>
           <div className="bg-accent/50 rounded-lg p-3 text-xs text-accent-foreground">
-            O usuário receberá um convite por email para acessar o sistema com o perfil selecionado.
+            {membro ? 'As alterações serão salvas imediatamente.' : 'O usuário receberá um convite por email para acessar o sistema com o perfil selecionado.'}
           </div>
         </div>
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={onClose}>{membro ? 'Salvar Alterações' : 'Enviar Convite'}</Button>
+          <Button variant="outline" onClick={onClose} disabled={loading}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={loading || !form.user_email.trim()}>
+            {loading && <Loader2 size={14} className="animate-spin mr-1" />}
+            {membro ? 'Salvar Alterações' : 'Enviar Convite'}
+          </Button>
         </div>
       </div>
     </div>

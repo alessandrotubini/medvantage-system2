@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Package, Clock, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PageHeader from '@/components/shared/PageHeader';
 import StatusBadge from '@/components/shared/StatusBadge';
 import SessaoModal from '@/components/sessoes/SessaoModal';
-import { DEMO_PACIENTES, DEMO_SERVICOS } from '@/lib/demoData';
+import { useClinica } from '@/lib/clinicaContext';
+import { base44 } from '@/api/base44Client';
 
 const DEMO_PACOTES = [
   { id: 'pk-001', nome_pacote: 'Pacote Fisioterapia 10x', paciente: 'Maria Fernanda Costa', servico: 'Fisioterapia Individual', total_sessoes: 10, sessoes_realizadas: 7, sessoes_restantes: 3, valor_total: 1350, valor_pago: 1350, status: 'ativo', data_validade: '2026-06-30' },
@@ -14,7 +15,21 @@ const DEMO_PACOTES = [
 ];
 
 export default function Sessoes() {
+  const { clinica } = useClinica();
   const [showModal, setShowModal] = useState(false);
+  const [pacotes, setPacotes] = useState([]);
+
+  useEffect(() => {
+    if (clinica?.id) {
+      base44.entities.SessaoPacote.filter({ clinica_id: clinica.id }).then(setPacotes);
+    }
+  }, [clinica?.id]);
+
+  const reload = () => {
+    if (clinica?.id) base44.entities.SessaoPacote.filter({ clinica_id: clinica.id }).then(setPacotes);
+  };
+
+  const source = clinica?.id ? pacotes : DEMO_PACOTES;
 
   return (
     <div className="space-y-4">
@@ -46,7 +61,7 @@ export default function Sessoes() {
           <h2 className="font-semibold text-foreground">Pacotes e Planos</h2>
         </div>
         <div className="divide-y divide-border">
-          {DEMO_PACOTES.map(pk => (
+          {source.map(pk => (
             <div key={pk.id} className="px-5 py-4 hover:bg-muted/20 transition-colors cursor-pointer">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -79,7 +94,7 @@ export default function Sessoes() {
         </div>
       </div>
 
-      {showModal && <SessaoModal onClose={() => setShowModal(false)} />}
+      {showModal && <SessaoModal onClose={() => setShowModal(false)} onSaved={reload} />}
     </div>
   );
 }

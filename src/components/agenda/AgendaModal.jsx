@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DEMO_PACIENTES, DEMO_PROFISSIONAIS, DEMO_SERVICOS } from '@/lib/demoData';
+import { base44 } from '@/api/base44Client';
+import { useClinica } from '@/lib/clinicaContext';
 
-export default function AgendaModal({ onClose, slot, atendimento }) {
+export default function AgendaModal({ onClose, slot, atendimento, onSaved }) {
+  const { clinica } = useClinica();
+  const [loading, setLoading] = useState(false);
+  const [pacientes, setPacientes] = useState([]);
+  const [profissionais, setProfissionais] = useState([]);
+  const [servicos, setServicos] = useState([]);
+
   const [form, setForm] = useState({
     paciente_id: atendimento?.paciente_id || '',
     profissional_id: atendimento?.profissional_id || slot?.prof?.id || '',
@@ -16,6 +23,33 @@ export default function AgendaModal({ onClose, slot, atendimento }) {
     status: atendimento?.status || 'agendado',
     observacoes: atendimento?.observacoes || '',
   });
+
+  useEffect(() => {
+    if (!clinica?.id) return;
+    Promise.all([
+      base44.entities.Paciente.filter({ clinica_id: clinica.id }),
+      base44.entities.Profissional.filter({ clinica_id: clinica.id }),
+      base44.entities.Servico.filter({ clinica_id: clinica.id }),
+    ]).then(([p, pr, s]) => {
+      setPacientes(p);
+      setProfissionais(pr);
+      setServicos(s);
+    });
+  }, [clinica?.id]);
+
+  const handleSave = async () => {
+    if (!form.paciente_id || !form.data || !form.hora_inicio) return;
+    setLoading(true);
+    const data = { ...form, clinica_id: clinica?.id };
+    if (atendimento?.id) {
+      await base44.entities.Atendimento.update(atendimento.id, data);
+    } else {
+      await base44.entities.Atendimento.create(data);
+    }
+    setLoading(false);
+    onSaved?.();
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -39,21 +73,21 @@ export default function AgendaModal({ onClose, slot, atendimento }) {
             <Label>Paciente</Label>
             <Select value={form.paciente_id} onValueChange={v => setForm({...form, paciente_id: v})}>
               <SelectTrigger className="mt-1"><SelectValue placeholder="Selecionar paciente" /></SelectTrigger>
-              <SelectContent>{DEMO_PACIENTES.map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}</SelectContent>
+              <SelectContent>{pacientes.map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div>
             <Label>Profissional</Label>
             <Select value={form.profissional_id} onValueChange={v => setForm({...form, profissional_id: v})}>
               <SelectTrigger className="mt-1"><SelectValue placeholder="Selecionar profissional" /></SelectTrigger>
-              <SelectContent>{DEMO_PROFISSIONAIS.map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}</SelectContent>
+              <SelectContent>{profissionais.map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div>
             <Label>Serviço / Procedimento</Label>
             <Select value={form.servico_id} onValueChange={v => setForm({...form, servico_id: v})}>
               <SelectTrigger className="mt-1"><SelectValue placeholder="Selecionar serviço" /></SelectTrigger>
-              <SelectContent>{DEMO_SERVICOS.map(s => <SelectItem key={s.id} value={s.id}>{s.nome} · {s.duracao_minutos}min</SelectItem>)}</SelectContent>
+              <SelectContent>{servicos.map(s => <SelectItem key={s.id} value={s.id}>{s.nome} · {s.duracao_minutos}min</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div>
@@ -78,8 +112,11 @@ export default function AgendaModal({ onClose, slot, atendimento }) {
           </div>
         </div>
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={onClose}>Salvar Agendamento</Button>
+          <Button variant="outline" onClick={onClose} disabled={loading}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={loading || !form.paciente_id || !form.data || !form.hora_inicio}>
+            {loading && <Loader2 size={14} className="animate-spin mr-1" />}
+            Salvar Agendamento
+          </Button>
         </div>
       </div>
     </div>

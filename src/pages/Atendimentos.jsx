@@ -1,28 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Calendar, User, Stethoscope } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PageHeader from '@/components/shared/PageHeader';
 import StatusBadge from '@/components/shared/StatusBadge';
 import AtendimentoModal from '@/components/atendimentos/AtendimentoModal';
-import { DEMO_ATENDIMENTOS_HOJE, DEMO_PACIENTES } from '@/lib/demoData';
+import { DEMO_ATENDIMENTOS_HOJE } from '@/lib/demoData';
+import { useClinica } from '@/lib/clinicaContext';
+import { base44 } from '@/api/base44Client';
 
 export default function Atendimentos() {
+  const { clinica } = useClinica();
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [atendimentos, setAtendimentos] = useState([]);
 
-  const allAtendimentos = [
-    ...DEMO_ATENDIMENTOS_HOJE,
-    { id: 'at-hist-001', hora_inicio: '09:00', paciente: 'Maria Fernanda Costa', profissional: 'Dra. Ana Carolina Melo', servico: 'Fisioterapia Individual', status: 'concluido', data: '2026-03-28' },
-    { id: 'at-hist-002', hora_inicio: '11:00', paciente: 'Carla Beatriz Santos', profissional: 'Dra. Fernanda Lima', servico: 'Consulta Nutricional', status: 'concluido', data: '2026-03-27' },
-    { id: 'at-hist-003', hora_inicio: '14:00', paciente: 'Roberto Martins', profissional: 'Dr. Marcos Oliveira', servico: 'Pilates Clínico', status: 'falta', data: '2026-03-26' },
-  ];
+  useEffect(() => {
+    if (clinica?.id) {
+      base44.entities.Atendimento.filter({ clinica_id: clinica.id }, '-data', 100).then(setAtendimentos);
+    }
+  }, [clinica?.id]);
 
-  const filtered = allAtendimentos.filter(a =>
-    a.paciente.toLowerCase().includes(search.toLowerCase()) ||
-    a.profissional.toLowerCase().includes(search.toLowerCase())
-  );
+  const reload = () => {
+    if (clinica?.id) base44.entities.Atendimento.filter({ clinica_id: clinica.id }, '-data', 100).then(setAtendimentos);
+  };
+
+  const source = clinica?.id ? atendimentos : DEMO_ATENDIMENTOS_HOJE;
+
+  const filtered = source.filter(a => {
+    const paciente = a.paciente || a.paciente_id || '';
+    const profissional = a.profissional || a.profissional_id || '';
+    return paciente.toLowerCase().includes(search.toLowerCase()) ||
+      profissional.toLowerCase().includes(search.toLowerCase());
+  });
 
   return (
     <div className="space-y-4">
@@ -61,8 +72,8 @@ export default function Atendimentos() {
         </div>
       </div>
 
-      {showModal && <AtendimentoModal onClose={() => setShowModal(false)} />}
-      {selected && <AtendimentoModal onClose={() => setSelected(null)} atendimento={selected} />}
+      {showModal && <AtendimentoModal onClose={() => setShowModal(false)} onSaved={reload} />}
+      {selected && <AtendimentoModal onClose={() => setSelected(null)} atendimento={selected} onSaved={reload} />}
     </div>
   );
 }
