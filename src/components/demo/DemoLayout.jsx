@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, Users, Package, DollarSign,
-  BarChart3, Brain, ArrowLeft, Zap, Activity, X
+  BarChart3, Brain, ArrowLeft, Zap, Activity
 } from 'lucide-react';
 
 const navItems = [
@@ -17,7 +17,6 @@ const navItems = [
 
 export default function DemoLayout() {
   const location = useLocation();
-  const [bannerVisible, setBannerVisible] = useState(true);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
@@ -90,7 +89,9 @@ export default function DemoLayout() {
             Voltar para a LP
           </Link>
           <a
-            href="/login"
+            href="https://turbosaas.pro/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 px-3 py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold rounded-lg transition-colors w-full"
           >
             Quero o meu ClínicaPro AI →
@@ -100,21 +101,25 @@ export default function DemoLayout() {
 
       {/* Main */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Demo top banner */}
-        {bannerVisible && (
-          <div className="flex-shrink-0 bg-amber-500 text-white px-4 py-2 flex items-center justify-between text-xs font-semibold">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
-              <span>MODO DEMONSTRAÇÃO — Você está navegando em dados fictícios. Nenhum dado real é acessado.</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <a href="/login" className="underline hover:no-underline">Quero o meu sistema →</a>
-              <button onClick={() => setBannerVisible(false)} className="hover:opacity-70 transition-opacity">
-                <X size={14} />
-              </button>
-            </div>
+        {/* Demo top banner — always visible, no close */}
+        <div className="flex-shrink-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2.5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-2 h-2 rounded-full bg-white animate-pulse flex-shrink-0"></div>
+            <span className="text-xs font-bold uppercase tracking-wide flex-shrink-0">Demonstração</span>
+            <span className="text-xs text-amber-100 hidden sm:inline truncate">
+              · Todos os dados são fictícios e ilustrativos. Nenhuma informação real é exibida ou processada.
+            </span>
           </div>
-        )}
+          <a
+            href="https://turbosaas.pro/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 bg-white text-orange-600 text-xs font-bold rounded-lg hover:bg-orange-50 transition-colors shadow-sm"
+          >
+            <Zap size={12} />
+            Quero para minha clínica
+          </a>
+        </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">

@@ -236,15 +236,26 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Pronto para ver o sistema funcionando?</h2>
           <p className="text-cyan-100 mb-8 text-lg">Explore a demo completa sem precisar criar uma conta. Veja cada funcionalidade ao vivo.</p>
-          <Link
-            to="/demo/dashboard"
-            className="inline-flex items-center gap-3 px-10 py-5 bg-white text-cyan-600 font-bold text-xl rounded-2xl hover:bg-cyan-50 transition-all shadow-2xl hover:scale-105"
-          >
-            <Zap size={22} />
-            Explorar Demo Completa
-            <ArrowRight size={20} />
-          </Link>
-          <p className="mt-4 text-cyan-200 text-sm">Acesso imediato · Sem login necessário</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/demo/dashboard"
+              className="inline-flex items-center gap-3 px-10 py-5 bg-white text-cyan-600 font-bold text-xl rounded-2xl hover:bg-cyan-50 transition-all shadow-2xl hover:scale-105"
+            >
+              <Zap size={22} />
+              Explorar Demo Completa
+              <ArrowRight size={20} />
+            </Link>
+            <a
+              href="https://turbosaas.pro/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-10 py-5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xl rounded-2xl transition-all shadow-xl hover:scale-105"
+            >
+              Quero o meu sistema
+              <ArrowRight size={20} />
+            </a>
+          </div>
+          <p className="mt-4 text-cyan-200 text-sm">Demo sem login · Contratação em turbosaas.pro</p>
         </div>
       </section>
 
