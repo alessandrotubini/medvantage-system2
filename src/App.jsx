@@ -23,7 +23,7 @@ import Financeiro from './pages/Financeiro';
 import Relatorios from './pages/Relatorios';
 import AIGrowthEngine from './pages/AIGrowthEngine';
 
-// ─── Real / Private Pages ─────────────────────────────────────────────────────
+// ─── Real / Private Pages (also reused in demo routes) ────────────────────────
 import Atendimentos from './pages/Atendimentos';
 import Equipe from './pages/Equipe';
 import Configuracoes from './pages/Configuracoes';
@@ -61,10 +61,15 @@ function App() {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="agenda" element={<Agenda />} />
               <Route path="pacientes" element={<Pacientes />} />
+              <Route path="atendimentos" element={<Atendimentos />} />
               <Route path="sessoes" element={<Sessoes />} />
               <Route path="financeiro" element={<Financeiro />} />
               <Route path="relatorios" element={<Relatorios />} />
               <Route path="ai-growth" element={<AIGrowthEngine />} />
+              <Route path="equipe" element={<Equipe />} />
+              <Route path="profissionais" element={<Profissionais />} />
+              <Route path="servicos" element={<Servicos />} />
+              <Route path="configuracoes" element={<Configuracoes />} />
             </Route>
 
             {/* ══════════════════════════════════════════════════

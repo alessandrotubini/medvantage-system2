@@ -2,17 +2,23 @@ import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, Users, Package, DollarSign,
-  BarChart3, Brain, ArrowLeft, Zap, Activity
+  BarChart3, Brain, ArrowLeft, Zap, Activity,
+  ClipboardList, UserCog, UserCheck, Scissors, Settings
 } from 'lucide-react';
 
 const navItems = [
   { path: '/demo/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/demo/agenda', label: 'Agenda', icon: Calendar },
   { path: '/demo/pacientes', label: 'Pacientes', icon: Users },
-  { path: '/demo/sessoes', label: 'Sessões', icon: Package },
+  { path: '/demo/atendimentos', label: 'Atendimentos', icon: ClipboardList },
+  { path: '/demo/sessoes', label: 'Sessões & Pacotes', icon: Package },
   { path: '/demo/financeiro', label: 'Financeiro', icon: DollarSign },
   { path: '/demo/relatorios', label: 'Relatórios', icon: BarChart3 },
-  { path: '/demo/ai-growth', label: 'AI Growth', icon: Brain },
+  { path: '/demo/ai-growth', label: 'AI Growth Engine', icon: Brain, highlight: true },
+  { path: '/demo/equipe', label: 'Equipe', icon: UserCog },
+  { path: '/demo/profissionais', label: 'Profissionais', icon: UserCheck },
+  { path: '/demo/servicos', label: 'Serviços', icon: Scissors },
+  { path: '/demo/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
 export default function DemoLayout() {
@@ -55,13 +61,15 @@ export default function DemoLayout() {
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+                    : item.highlight
+                      ? 'text-cyan-400 hover:bg-sidebar-accent/50 hover:text-cyan-300'
+                      : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
                 }`}
               >
                 <item.icon size={16} />
                 {item.label}
-                {item.label === 'AI Growth' && (
-                  <span className="ml-auto text-[9px] font-bold text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded-full">IA</span>
+                {item.highlight && (
+                  <span className="ml-auto text-[9px] font-bold text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded-full">AI</span>
                 )}
               </Link>
             );
