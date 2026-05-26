@@ -102,17 +102,19 @@ function App() {
               <Route path="configuracoes" element={<Configuracoes />} />
             </Route>
 
-            {/* Master Admin — privado, sem sidebar clínica */}
+            {/* Master Admin — dentro do AppLayout para manter a sidebar */}
             <Route
               path="/master"
               element={
                 <PrivateRoute>
                   <ClinicaProvider>
-                    <MasterAdmin />
+                    <AppLayout />
                   </ClinicaProvider>
                 </PrivateRoute>
               }
-            />
+            >
+              <Route index element={<MasterAdmin />} />
+            </Route>
 
             {/* Onboarding — privado, sem sidebar */}
             <Route
