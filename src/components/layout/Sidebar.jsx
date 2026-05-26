@@ -118,8 +118,9 @@ export default function Sidebar({ collapsed, onToggle }) {
       </nav>
 
       {/* User Footer */}
-      <div className="px-3 pb-4 border-t border-sidebar-border pt-3 flex-shrink-0">
-        <div className={cn('flex items-center gap-3 px-3 py-2 rounded-lg', !collapsed && 'hover:bg-sidebar-accent cursor-pointer')}>
+      <div className="px-3 pb-4 border-t border-sidebar-border pt-3 flex-shrink-0 space-y-1">
+        {/* User info */}
+        <div className="flex items-center gap-3 px-3 py-2 rounded-lg">
           <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
             style={{ backgroundColor: primaryColor }}>
             {user?.full_name?.[0] || 'U'}
@@ -130,12 +131,21 @@ export default function Sidebar({ collapsed, onToggle }) {
               <p className="text-[10px] text-sidebar-foreground opacity-60 truncate">{user?.email}</p>
             </div>
           )}
-          {!collapsed && (
-            <button onClick={handleLogout} className="text-sidebar-foreground hover:text-red-400 transition-colors">
-              <LogOut size={14} />
-            </button>
-          )}
         </div>
+
+        {/* Sair do sistema */}
+        <button
+          onClick={handleLogout}
+          title="Sair do sistema"
+          className={cn(
+            'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+            'text-red-400 hover:bg-red-500/10 hover:text-red-300',
+            collapsed && 'justify-center'
+          )}
+        >
+          <LogOut size={16} className="flex-shrink-0" />
+          {!collapsed && <span>Sair do sistema</span>}
+        </button>
       </div>
     </aside>
   );
