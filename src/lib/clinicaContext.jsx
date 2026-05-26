@@ -20,6 +20,12 @@ export function ClinicaProvider({ children }) {
       setUser(me);
       setIsSuperAdmin(me?.role === 'admin');
 
+      // Forçar troca de senha se necessário
+      if (me?.must_change_password && !me?.login_provider) {
+        window.location.href = '/app/configuracoes?tab=seguranca';
+        return;
+      }
+
       if (me?.role === 'admin') {
         // Super Admin: load all clinics and select stored one or first available
         const todas = await base44.entities.Clinica.list();

@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Save, Building2, Palette, Clock, FileText, CreditCard, Upload } from 'lucide-react';
+import { Save, Building2, Palette, Clock, FileText, CreditCard, Upload, ShieldCheck, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PageHeader from '@/components/shared/PageHeader';
 import { useClinica } from '@/lib/clinicaContext';
 import { DEMO_CLINICA } from '@/lib/demoData';
+import { base44 } from '@/api/base44Client';
+import { useToast } from '@/components/ui/use-toast';
+import ForcaTrocaSenha from '@/components/seguranca/ForcaTrocaSenha';
 
 const TABS = [
   { key: 'clinica', label: 'Dados da Clínica', icon: Building2 },
@@ -13,14 +16,68 @@ const TABS = [
   { key: 'horarios', label: 'Horários', icon: Clock },
   { key: 'mensagens', label: 'Mensagens Padrão', icon: FileText },
   { key: 'plano', label: 'Plano & Licença', icon: CreditCard },
+  { key: 'seguranca', label: 'Segurança', icon: ShieldCheck },
 ];
 
 const DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 
 export default function Configuracoes() {
-  const { clinica } = useClinica();
+  const { clinica, user } = useClinica();
+  const { toast } = useToast();
   const data = clinica || DEMO_CLINICA;
-  const [activeTab, setActiveTab] = useState('clinica');
+  const urlParams = new URLSearchParams(window.location.search);
+  const [activeTab, setActiveTab] = useState(urlParams.get('tab') || 'clinica');
+
+  // Segurança
+  const [senhaAtual, setSenhaAtual] = useState('');
+  const [novaSenha, setNovaSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [showSenha, setShowSenha] = useState(false);
+  const [loadingSenha, setLoadingSenha] = useState(false);
+  const [loadingForcaTroca, setLoadingForcaTroca] = useState(false);
+
+  const isOAuthUser = user?.login_provider && user.login_provider !== 'email';
+
+  const handleAlterarSenha = async () => {
+    if (!novaSenha || !confirmarSenha) {
+      toast({ title: 'Preencha todos os campos', variant: 'destructive' });
+      return;
+    }
+    if (novaSenha !== confirmarSenha) {
+      toast({ title: 'As senhas não coincidem', variant: 'destructive' });
+      return;
+    }
+    if (novaSenha.length < 8) {
+      toast({ title: 'A senha deve ter no mínimo 8 caracteres', variant: 'destructive' });
+      return;
+    }
+    setLoadingSenha(true);
+    try {
+      await base44.auth.updateMe({ password: novaSenha });
+      toast({ title: 'Senha alterada com sucesso!' });
+      setSenhaAtual(''); setNovaSenha(''); setConfirmarSenha('');
+    } catch (e) {
+      toast({ title: 'Erro ao alterar senha', description: e.message, variant: 'destructive' });
+    } finally {
+      setLoadingSenha(false);
+    }
+  };
+
+  const handleForcaTroca = async (targetEmail) => {
+    setLoadingForcaTroca(true);
+    try {
+      // Salva flag no registro do usuário alvo para forçar troca no próximo logon
+      const users = await base44.entities.User.filter({ email: targetEmail });
+      if (users.length > 0) {
+        await base44.entities.User.update(users[0].id, { must_change_password: true });
+        toast({ title: 'Usuário será solicitado a trocar a senha no próximo logon.' });
+      }
+    } catch (e) {
+      toast({ title: 'Erro ao configurar troca obrigatória', description: e.message, variant: 'destructive' });
+    } finally {
+      setLoadingForcaTroca(false);
+    }
+  };
   const [form, setForm] = useState({
     nome: data.nome || '',
     telefone: data.telefone || '',
@@ -180,6 +237,73 @@ export default function Configuracoes() {
                 <textarea value={form.mensagem_lembrete} onChange={e => setForm({...form, mensagem_lembrete: e.target.value})}
                   className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none h-24 focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
+            </div>
+          )}
+
+          {activeTab === 'seguranca' && (
+            <div className="space-y-6 max-w-lg">
+              <h3 className="font-semibold text-foreground">Segurança da Conta</h3>
+
+              {isOAuthUser ? (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700">
+                  <p className="font-medium mb-1">Autenticação via {user.login_provider === 'google' ? 'Google' : 'Microsoft'}</p>
+                  <p className="text-blue-600">Sua conta usa autenticação externa. A senha é gerenciada diretamente pela plataforma {user.login_provider === 'google' ? 'Google' : 'Microsoft'}.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Alterar senha */}
+                  <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <KeyRound size={16} className="text-primary" />
+                      <h4 className="font-medium text-foreground">Alterar Minha Senha</h4>
+                    </div>
+                    <div>
+                      <Label>Nova Senha</Label>
+                      <div className="relative mt-1">
+                        <Input
+                          type={showSenha ? 'text' : 'password'}
+                          placeholder="Mínimo 8 caracteres"
+                          value={novaSenha}
+                          onChange={e => setNovaSenha(e.target.value)}
+                          className="pr-10"
+                        />
+                        <button type="button" onClick={() => setShowSenha(v => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                          {showSenha ? <EyeOff size={15} /> : <Eye size={15} />}
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Confirmar Nova Senha</Label>
+                      <Input
+                        type={showSenha ? 'text' : 'password'}
+                        placeholder="Repita a nova senha"
+                        value={confirmarSenha}
+                        onChange={e => setConfirmarSenha(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <Button onClick={handleAlterarSenha} disabled={loadingSenha} className="w-full gap-2">
+                      <KeyRound size={15} />
+                      {loadingSenha ? 'Salvando...' : 'Alterar Senha'}
+                    </Button>
+                  </div>
+
+                  {/* Forçar troca de senha — apenas para admins */}
+                  {user?.role === 'admin' && (
+                    <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck size={16} className="text-amber-500" />
+                        <h4 className="font-medium text-foreground">Forçar Troca de Senha de Usuário</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Insira o e-mail do usuário para exigir que ele redefina a senha no próximo logon. Funciona apenas para usuários com autenticação por e-mail (não Google/Microsoft).
+                      </p>
+                      <ForcaTrocaSenha onConfirm={handleForcaTroca} loading={loadingForcaTroca} />
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 
