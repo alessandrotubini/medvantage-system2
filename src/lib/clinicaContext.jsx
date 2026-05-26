@@ -86,7 +86,7 @@ export function ClinicaProvider({ children }) {
   };
 
   return (
-    <ClinicaContext.Provider value={{ clinica, setClinica, todasClinicas, selectClinica, loading, user, isSuperAdmin, refreshClinica, applyClinicaBranding }}>
+    <ClinicaContext.Provider value={{ clinica, setClinica, todasClinicas, selectClinica, loading, user, isSuperAdmin, refreshClinica, applyClinicaBranding, loadClinica }}>
       {children}
     </ClinicaContext.Provider>
   );
