@@ -50,7 +50,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         {!collapsed && (
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-sidebar-accent-foreground truncate leading-tight">
-              {clinica?.nome || 'ClínicaPro AI'}
+              {clinica?.nome || 'MedVantage System'}
             </p>
             <p className="text-xs text-sidebar-foreground opacity-60 truncate">
               {isSuperAdmin ? 'Super Admin' : 'Painel da Clínica'}

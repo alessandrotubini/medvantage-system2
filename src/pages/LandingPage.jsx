@@ -55,7 +55,7 @@ export default function LandingPage() {
             <div className="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center">
               <Activity size={16} className="text-white" />
             </div>
-            <span className="font-bold text-gray-900">ClínicaPro <span className="text-cyan-500">AI</span></span>
+            <span className="font-bold text-gray-900">MedVantage <span className="text-cyan-500">System</span></span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
             <a href="#funcionalidades" className="hover:text-cyan-600 transition-colors">Funcionalidades</a>
@@ -281,7 +281,7 @@ export default function LandingPage() {
           <div className="w-6 h-6 rounded-md bg-cyan-500 flex items-center justify-center">
             <Activity size={12} className="text-white" />
           </div>
-          <span className="font-semibold text-white">ClínicaPro AI</span>
+          <span className="font-semibold text-white">MedVantage System</span>
         </div>
         <p>Sistema de gestão clínica com inteligência artificial</p>
       </footer>

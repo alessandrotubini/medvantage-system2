@@ -35,7 +35,7 @@ export default function DemoLayout() {
               <Activity size={16} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-bold text-sidebar-foreground">ClínicaPro <span className="text-cyan-400">AI</span></p>
+              <p className="text-sm font-bold text-sidebar-foreground">MedVantage <span className="text-cyan-400">System</span></p>
               <p className="text-[10px] text-sidebar-foreground/50">Clínica Vida & Saúde</p>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function DemoLayout() {
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 px-3 py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold rounded-lg transition-colors w-full"
           >
-            Quero o meu ClínicaPro AI →
+            Quero o meu MedVantage System →
           </a>
         </div>
       </aside>
