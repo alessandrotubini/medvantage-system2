@@ -1,5 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useAuth } from '@/lib/AuthContext';
+import { base44 } from '@/api/base44Client';
 import {
   Brain, Calendar, Users, TrendingUp, Shield, Zap, BarChart3,
   CheckCircle, ArrowRight, Star, Clock, DollarSign, Activity
@@ -30,6 +33,19 @@ const testimonials = [
 ];
 
 export default function LandingPage() {
+  const { isAuthenticated, isLoadingAuth, isLoadingPublicSettings } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoadingAuth && !isLoadingPublicSettings && isAuthenticated) {
+      navigate('/app/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, isLoadingAuth, isLoadingPublicSettings, navigate]);
+
+  const handleLogin = () => {
+    base44.auth.redirectToLogin('/app/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-white font-inter">
       {/* Navbar */}
@@ -50,9 +66,9 @@ export default function LandingPage() {
             <Link to="/demo/dashboard" className="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-cyan-600 border border-cyan-200 rounded-lg hover:bg-cyan-50 transition-colors">
               Ver Demo
             </Link>
-            <a href="/login" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-500 rounded-lg hover:bg-cyan-600 transition-colors">
+            <button onClick={handleLogin} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-500 rounded-lg hover:bg-cyan-600 transition-colors">
               Entrar
-            </a>
+            </button>
           </div>
         </div>
       </nav>
@@ -83,9 +99,9 @@ export default function LandingPage() {
                 Ver Demo Agora
                 <ArrowRight size={18} />
               </Link>
-              <a href="/login" className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/20 text-white font-semibold text-lg rounded-xl hover:bg-white/10 transition-all">
+              <button onClick={handleLogin} className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/20 text-white font-semibold text-lg rounded-xl hover:bg-white/10 transition-all">
                 Acessar Minha Conta
-              </a>
+              </button>
             </div>
             <p className="mt-4 text-sm text-slate-400">Sem cartão de crédito · Demo gratuita · Setup em minutos</p>
           </div>
