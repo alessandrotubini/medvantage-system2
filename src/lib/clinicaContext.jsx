@@ -5,6 +5,7 @@ export const ClinicaContext = createContext(null);
 
 export function ClinicaProvider({ children }) {
   const [clinica, setClinica] = useState(null);
+  const [todasClinicas, setTodasClinicas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
@@ -19,7 +20,17 @@ export function ClinicaProvider({ children }) {
       setUser(me);
       setIsSuperAdmin(me?.role === 'admin');
 
-      if (me?.role !== 'admin') {
+      if (me?.role === 'admin') {
+        // Super Admin: load all clinics and select stored one or first available
+        const todas = await base44.entities.Clinica.list();
+        setTodasClinicas(todas);
+        const storedId = localStorage.getItem('superadmin_clinica_id');
+        const selected = todas.find(c => c.id === storedId) || todas[0] || null;
+        if (selected) {
+          applyClinicaBranding(selected);
+          setClinica(selected);
+        }
+      } else {
         // Load the clinic associated to this user
         const clinicas = await base44.entities.Clinica.filter({ owner_email: me.email });
         if (clinicas.length > 0) {
@@ -44,6 +55,14 @@ export function ClinicaProvider({ children }) {
     }
   };
 
+  const selectClinica = (c) => {
+    if (c) {
+      localStorage.setItem('superadmin_clinica_id', c.id);
+      applyClinicaBranding(c);
+    }
+    setClinica(c);
+  };
+
   const applyClinicaBranding = (c) => {
     if (c?.cor_principal) {
       document.documentElement.style.setProperty('--clinic-primary', c.cor_principal);
@@ -61,7 +80,7 @@ export function ClinicaProvider({ children }) {
   };
 
   return (
-    <ClinicaContext.Provider value={{ clinica, setClinica, loading, user, isSuperAdmin, refreshClinica, applyClinicaBranding }}>
+    <ClinicaContext.Provider value={{ clinica, setClinica, todasClinicas, selectClinica, loading, user, isSuperAdmin, refreshClinica, applyClinicaBranding }}>
       {children}
     </ClinicaContext.Provider>
   );

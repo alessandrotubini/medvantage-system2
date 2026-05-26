@@ -47,7 +47,7 @@ export default function MasterAdmin() {
             </div>
             <div>
               <h1 className="text-xl font-bold">Painel Master</h1>
-              <p className="text-slate-400 text-sm">ClínicaPro AI · Administração da Plataforma</p>
+              <p className="text-slate-400 text-sm">MedVantage System · Administração da Plataforma</p>
             </div>
           </div>
           <Button onClick={() => setShowModal(true)} className="bg-amber-500 hover:bg-amber-400 text-white gap-2">

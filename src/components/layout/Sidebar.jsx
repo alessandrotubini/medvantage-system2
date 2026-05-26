@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, Users, ClipboardList, Package, DollarSign,
-  BarChart3, Settings, Brain, Building2, Menu, LogOut, ChevronRight, Stethoscope, UserCog, UserCheck, Scissors
+  BarChart3, Settings, Brain, Building2, Menu, LogOut, ChevronRight, Stethoscope, UserCog, UserCheck, Scissors, ChevronsUpDown
 } from 'lucide-react';
 import { useClinica } from '@/lib/clinicaContext';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/app/dashboard' },
@@ -25,7 +26,7 @@ const navItems = [
 
 export default function Sidebar({ collapsed, onToggle }) {
   const location = useLocation();
-  const { clinica, user, isSuperAdmin } = useClinica();
+  const { clinica, todasClinicas, selectClinica, user, isSuperAdmin } = useClinica();
 
   const handleLogout = () => base44.auth.logout('/?logout=1');
 
@@ -62,9 +63,9 @@ export default function Sidebar({ collapsed, onToggle }) {
         </button>
       </div>
 
-      {/* Super Admin Link */}
+      {/* Super Admin Controls */}
       {isSuperAdmin && (
-        <div className="px-3 pt-3">
+        <div className="px-3 pt-3 space-y-2">
           <Link to="/master" className={cn(
             'flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
             'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
@@ -72,6 +73,19 @@ export default function Sidebar({ collapsed, onToggle }) {
             <Building2 size={14} />
             {!collapsed && 'Painel Master'}
           </Link>
+          {!collapsed && todasClinicas.length > 0 && (
+            <Select value={clinica?.id || ''} onValueChange={id => selectClinica(todasClinicas.find(c => c.id === id))}>
+              <SelectTrigger className="h-8 text-xs bg-sidebar-accent border-sidebar-border text-sidebar-accent-foreground">
+                <ChevronsUpDown size={12} className="mr-1 flex-shrink-0" />
+                <SelectValue placeholder="Selecionar clínica..." />
+              </SelectTrigger>
+              <SelectContent>
+                {todasClinicas.map(c => (
+                  <SelectItem key={c.id} value={c.id} className="text-xs">{c.nome}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       )}
 
