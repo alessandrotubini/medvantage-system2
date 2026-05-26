@@ -21,6 +21,9 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
+
+      // Re-read token from storage/URL each time (handles post-OAuth redirect)
+      const currentToken = localStorage.getItem('base44_access_token');
       
       // First, check app public settings (with token if available)
       // This will tell us if auth is required, user not registered, etc.
@@ -29,7 +32,7 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'X-App-Id': appParams.appId
         },
-        token: appParams.token, // Include token if available
+        token: currentToken || appParams.token, // Include token if available
         interceptResponses: true
       });
       
@@ -38,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         setAppPublicSettings(publicSettings);
         
         // If we got the app public settings successfully, check if user is authenticated
-        if (appParams.token) {
+        if (currentToken || appParams.token) {
           await checkUserAuth();
         } else {
           setIsLoadingAuth(false);
