@@ -62,5 +62,47 @@
     "paciente_id",
     "nome_pacote",
     "total_sessoes"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "data.clinica_id": "{{user.data.clinicId}}",
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "data.clinica_id": "{{user.data.clinicId}}",
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "data.clinica_id": "{{user.data.clinicId}}",
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "data.clinica_id": "{{user.data.clinicId}}",
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
 }
