@@ -19,5 +19,8 @@
       "type": "string",
       "description": "Provedor de autentica\u00e7\u00e3o: email, google, microsoft"
     }
-  }
+  },
+  "required": [
+    "login_provider"
+  ]
 }

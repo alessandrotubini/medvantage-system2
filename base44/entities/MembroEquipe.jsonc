@@ -78,5 +78,74 @@
     "clinica_id",
     "user_email",
     "papel"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.clinica_id": "{{user.data.clinicId}}"
+            },
+            {
+              "user.data.papel": "admin_clinica"
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "data.clinica_id": "{{user.data.clinicId}}",
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.clinica_id": "{{user.data.clinicId}}"
+            },
+            {
+              "user.data.papel": "admin_clinica"
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.clinica_id": "{{user.data.clinicId}}"
+            },
+            {
+              "user.data.papel": "admin_clinica"
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
 }
