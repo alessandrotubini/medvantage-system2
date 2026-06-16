@@ -96,15 +96,7 @@ export default function DemoLayout() {
             <ArrowLeft size={13} />
             Voltar para a LP
           </Link>
-          <a
-            href="https://turbosaas.pro/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold rounded-lg transition-colors w-full"
-          >
-            Quero o meu MedVantage System →
-          </a>
-        </div>
+          </div>
       </aside>
 
       {/* Main */}
@@ -118,15 +110,6 @@ export default function DemoLayout() {
               · Todos os dados são fictícios e ilustrativos. Nenhuma informação real é exibida ou processada.
             </span>
           </div>
-          <a
-            href="https://turbosaas.pro/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 bg-white text-orange-600 text-xs font-bold rounded-lg hover:bg-orange-50 transition-colors shadow-sm"
-          >
-            <Zap size={12} />
-            Quero para minha clínica
-          </a>
         </div>
 
         {/* Content */}

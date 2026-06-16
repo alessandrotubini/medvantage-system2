@@ -261,17 +261,15 @@ export default function LandingPage() {
               Explorar Demo Completa
               <ArrowRight size={20} />
             </Link>
-            <a
-              href="https://turbosaas.pro/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleLogin}
               className="inline-flex items-center gap-3 px-10 py-5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xl rounded-2xl transition-all shadow-xl hover:scale-105"
             >
-              Quero o meu sistema
+              Criar minha conta
               <ArrowRight size={20} />
-            </a>
+            </button>
           </div>
-          <p className="mt-4 text-cyan-200 text-sm">Demo sem login · Contratação em turbosaas.pro</p>
+          <p className="mt-4 text-cyan-200 text-sm">Demo sem login · Comece agora mesmo</p>
         </div>
       </section>
 
