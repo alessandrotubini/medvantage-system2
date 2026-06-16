@@ -31,9 +31,7 @@ export const AuthProvider = ({ children }) => {
         baseURL: `/api/apps/public`,
         headers: {
           'X-App-Id': appParams.appId
-        },
-        token: currentToken || appParams.token, // Include token if available
-        interceptResponses: true
+        }
       });
       
       try {
